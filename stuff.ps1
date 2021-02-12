@@ -21,3 +21,28 @@ if ($PSVersionTable.PSEdition -eq 'Desk' -and (Get-InstalledModule -Name AzureRM
 }
 
 ###########################################
+# function get-blobs
+function Get-blobs (
+    [string] $TenantID,
+    [string] $ContainerName, 
+    [string] $ApplicationID, 
+    [string] $SecretFilePath,
+    [string] $SourceAZStorageAccount
+    )
+
+{
+    $ClientSecret = Get-Content $SecretFilePath
+    $Secret = ConvertTo-SecureString -String $clientSecret -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $ApplicationID, $secret
+    
+    Connect-AzAccount -Credential $Credential -Tenant $TenantID -ServicePrincipal
+    
+    $Context = New-AzStorageContext -StorageAccountName $SourceAZStorageAccount -UseConnectedAccount
+    $Container = Get-AzStorageContainer -context $context -name $containerName
+    $Blobs = Get-AzStorageBlob -Container $ContainerName -Context $Context
+
+    $blobs
+}
+
+
+###########################################
